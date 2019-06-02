@@ -1,0 +1,73 @@
+{% load static %}
+{% block content %}
+<div class="background-gray fare-table">
+<div>
+<table class="table">
+  <tbody>
+    {% for fare in fares_table|slice:"5" %}
+      <tr>
+        <td><div>{{fare.vehicle_type}}</div>
+            {% if fare.vehicle_type|upper == 'HATCHBACK' %}<div>
+              <img src="/static/images/Hutchback.svg">
+            </div>
+            {% elif fare.vehicle_type|upper == 'SEDAN' %}<div>
+              <img src="/static/images/Sedan.svg">
+            </div>
+            {% elif fare.vehicle_type|upper == 'SUV' %}<div>
+              <img src="/static/images/SUV.svg">
+            </div>
+            {% elif fare.vehicle_type|upper == 'SEDAN - PREMIUM' %}<div>
+              <img src="/static/images/Sedan.svg">
+            </div>{% endif %}
+        </td>
+        <td><div>{{fare.seater}} Seater | {{fare.vehicle_feature}}</div>
+        <div>&#8377 {{fare.per_km_rate}} per km | &#8377 {% widthratio total_distance 1 fare.per_km_rate %}</div></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% if fares_table|length > 5 %}
+  <div id="showMoreBtn" class="show-more-less">View all options</div>
+  <table id="extraFares" class="table hide">
+    <tbody>
+      {% for fare in fares_table|slice:"6:" %}
+        <tr>
+          <td>
+            <div>{{fare.vehicle_type}}</div>
+            {% if fare.vehicle_type|upper == 'HATCHBACK' %}<div>
+              <img src="/static/images/Hutchback.svg">
+            </div>
+            {% elif fare.vehicle_type|upper == 'SEDAN' %}<div>
+              <img src="/static/images/Sedan.svg">
+            </div>
+            {% elif fare.vehicle_type|upper == 'SUV' %}<div>
+              <img src="/static/images/SUV.svg">
+            </div>
+            {% elif fare.vehicle_type|upper == 'SEDAN – PREMIUM' %}<div>
+              <img src="/static/images/Sedan.svg">
+            </div>{% endif %}
+          </td>
+          <td><div>{{fare.seater}} Seater | {{fare.vehicle_feature}}</div>
+          <div>&#8377 {{fare.per_km_rate}} per km | &#8377 {% widthratio total_distance 1 fare.per_km_rate %}</div></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+  </div>
+  <div id="showLessBtn" class="show-more-less hide">Show less</div>
+  <button class="upper blue-button yellow">Book Cab</button>
+</div>
+<script type="text/javascript">
+  $('#showMoreBtn').on('click', function(e){
+    $('#extraFares').removeClass('hide');
+    $('#showMoreBtn').addClass('hide');
+    $('#showLessBtn').removeClass('hide');
+  });
+  $('#showLessBtn').on('click', function(e){
+    $('#extraFares').addClass('hide');
+    $('#showMoreBtn').removeClass('hide');
+    $('#showLessBtn').addClass('hide');
+  });
+</script>
+{% endblock %}

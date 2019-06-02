@@ -1,0 +1,189 @@
+{% load static %}
+{% block content %}
+
+<form id="reviewForm" enctype="multipart/form-data" >
+  {% csrf_token %}
+  <div class="margin-top-bottom-10">
+    <label class="review-form-label">Title: </label>
+    <input type="text" name="reviewTitle" id="reviewTitle" class="review-form-field"></input>
+  </div>
+  <div class="margin-top-bottom-10">
+    <label class="review-form-label">Comments:</label>
+    <textarea id="reviewComments" name="reviewComments" rows="4" cols="30" class="review-form-field"></textarea>
+  </div>
+  <div class="margin-top-bottom-10">
+    <label class="review-form-label">Rating: </label>
+    <input id="reviewRating" name="reviewRating" type="number" class="review-form-field" min="0" max="5" required></input>
+  </div>
+  <div class="margin-top-bottom-10"><label> Upload Images:</label></div>
+  <div> click here or drag and drop images to upload. (<i style="font-size:14px;">Maximum 10 image files allowed to be uploaded</i>)</div>
+  <div id="reviewImagesDropzone" class="file-dropzone background-gray margin-top-bottom-10"></div>
+  <div id="imageError" class ="form-error hide"><span id="imageUploadError"></span></div>
+  <div class="margin-top-bottom-10"><label>Upload Videos:</label></div>
+  <div> click here or drag and drop videos to upload. (<i style="font-size:14px;">Maximum 2 video files allowed to be uploaded</i>)</div>
+  <div id="reviewVideosDropzone" class="file-dropzone background-gray"></div>
+  <div id="videoError" class ="form-error hide"><span id="videoUploadError"></span></div>
+  <div id="formError" class ="form-error hide margin-top-bottom-10"><span id="reviewFormError"></span></div>
+  <div class="review-form-button-container margin-top-bottom-10">
+    <button id="submitButton" class="background-yellow review-form-button" type="submit">Submit</button>
+    <button id="cancelButton"class="background-yellow review-form-button" >Cancel</button>
+  </div>
+</form>
+<div class="modal fade" id="spinnerModal" role="dialog">
+    <div class="modal-dialog spinner-dialog">
+      <i class="fa fa-spinner fa-spin spinner"></i>
+    </div>
+  </div>
+<script type="text/javascript">
+  $(document).ready(function(){
+  Dropzone.autoDiscover = false;
+  var dropzones=[];
+  var imageDropzone = new Dropzone('div#reviewImagesDropzone', {
+      url: '/review/',
+      autoProcessQueue: false,
+      autoDiscover: false,
+      uploadMultiple: true,
+      parallelUploads: 2,
+      maxFiles: 10,
+      paramName: "images",
+      addRemoveLinks: true,
+      retryChunks: true,
+      parallelChunkUploads: true,
+      thumbnailWidth : 80,
+      thumbnailheight : 80,
+      acceptedFiles: 'image/jpeg, image/jpg, image/png'
+
+   });
+
+   imageDropzone.on("maxfilesexceeded", function(file) {
+     if($("#reviewImagesDropzone").hasClass("dz-max-files-reached")){
+       $('#imageError').removeClass("hide");
+       $("#imageUploadError").html("Maximum 10 number of images can be uploaded");
+     }
+   });
+   imageDropzone.on("removedfile", function(file) {
+     var maxFile = imageDropzone.options.maxFiles;
+     var totalFiles = $("#reviewImagesDropzone").children(".dz-preview").length
+     //console.log(maxFile)
+     //console.log(totalFiles)
+     if(totalFiles<=maxFile){
+       $("#imageUploadError").html("");
+       $('#imageError').addClass("hide");
+     }
+   });
+  dropzones.push(imageDropzone);
+  var videoDropzone = new Dropzone('div#reviewVideosDropzone', {
+      url: '/review/',
+      autoProcessQueue: false,
+      autoDiscover: false,
+      uploadMultiple: true,
+      parallelUploads: 2,
+      maxFiles: 2,
+      paramName: "videos",
+      addRemoveLinks: true,
+      retryChunks: true,
+      parallelChunkUploads: true,
+      thumbnailWidth : 80,
+      thumbnailheight : 80,
+      acceptedFiles: 'video/*'
+    });
+    videoDropzone.on("maxfilesexceeded", function(file) {
+      if($("#reviewVideosDropzone").hasClass("dz-max-files-reached")){
+        $("#videoUploadError").html("Maximum 2 number of videos can be uploaded");
+        $('#videoError').removeClass("hide");
+      }
+    });
+    videoDropzone.on("removedfile", function(file) {
+      var maxFile = videoDropzone.options.maxFiles;
+      var totalFiles = $("#reviewVideosDropzone").children(".dz-preview").length;
+      if(totalFiles<=maxFile){
+        $("#videoUploadError").html("");
+        $('#videoError').addClass("hide");
+      }
+    });
+
+  dropzones.push(videoDropzone);
+
+  $('#reviewForm').submit(function(e) {
+                  e.preventDefault();
+                  e.stopPropagation();
+
+                  if(isValid()){
+                    $("#spinnerModal").modal({
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                  let reviewForm = document.getElementById('reviewForm');
+                  let reviewFormData = new FormData(reviewForm);
+                  dropzones.forEach(dropzone => {
+                      let  { paramName }  = dropzone.options;
+                      dropzone.files.forEach((file, i) => {
+                          reviewFormData.append(paramName + '[' + i + ']', file);
+                      })
+                  });
+                  reviewFormData.append('route_id', route.routeId());
+                  reviewFormData.append('csrfmiddlewaretoken', $('input[name=csrfmiddlewaretoken]').val());
+                  $.ajax({
+                      url: '/review/',
+                      method: 'POST',
+                      data: reviewFormData,
+                      cache: false,
+                      contentType: false,
+                      processData: false,
+                      success: function(data) {
+                        $('#spinnerModal').modal('toggle');
+                        $("#reviews_count").html(data.total_reviews);
+                        reset();
+                      }
+                  });
+                }
+  });
+  $('#cancelButton').on('click', function(e){
+    reset();
+  })
+
+  var totalImages = function(){
+    var totalImageFiles = $("#reviewImagesDropzone").children(".dz-preview").length;
+    return totalImageFiles;
+  }
+
+  var totalVideos = function(){
+    var totalVideoFiles = $("#reviewVideosDropzone").children(".dz-preview").length;
+    return totalVideoFiles;
+  }
+
+  var isValid = function(){
+    //var isEmptyComments = $('#reviewComments').val()=='';
+    $("#reviewFormError").html("");
+    $('#formError').addClass("hide");
+    if( $('#reviewComments').val()=='' && totalImages() == 0 && totalVideos() == 0){
+      $("#reviewFormError").html("Please provide your comments or upload photos/videos to submit a review.");
+      $('#formError').removeClass("hide");
+      return false;
+    } else if(totalImages() > imageDropzone.options.maxFiles) {
+      return false;
+    } else if(totalVideos() > videoDropzone.options.maxFiles) {
+      return false;
+    }else{
+      return true;
+    }
+  }
+  var reset= function(){
+    reviewForm.reset();
+    $("#imageUploadError").html("");
+    $('#imageError').addClass("hide");
+    $("#videoUploadError").html("");
+    $('#videoError').addClass("hide");
+    $("#reviewFormError").html("");
+    $('#formError').addClass("hide");
+    dropzones.forEach(dropzone => {
+      dropzone.removeAllFiles();
+    });
+    $("#reviewListPanel").removeClass("hide");
+    $("#writeReviewPanel").addClass("hide");
+  }
+
+});
+
+  </script>
+{% endblock%}

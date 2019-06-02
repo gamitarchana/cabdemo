@@ -1,0 +1,22 @@
+{% load static %}
+{% load wagtailcore_tags wagtailimages_tags %}
+{% load wagtailimages_tags %}
+{% block content %}
+<div id="imageCarousel-{{review.id}}" class="carousel slide margin-top-bottom-30" data-ride="carousel">
+<div class="carousel-inner">
+  {% for review_img in review_images %}
+    <div class="carousel-item {% if forloop.counter == 1 %} active {% endif %}">
+      <img class="d-block w-100" src ="{{review_img.image.url}}" alt="{{img.alt}}">
+    </div>
+  {% endfor %}
+</div>
+<a class="carousel-control-prev" href="#imageCarousel-{{review.id}}" role="button" data-slide="prev">
+  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+  <span class="sr-only">Previous</span>
+</a>
+<a class="carousel-control-next" href="#imageCarousel-{{review.id}}" role="button" data-slide="next">
+  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+  <span class="sr-only">Next</span>
+</a>
+</div>
+{% endblock %}

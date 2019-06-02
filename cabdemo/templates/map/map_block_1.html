@@ -1,0 +1,43 @@
+{% load static %}
+
+{% load filters responsive_image %}
+
+{% load wagtailcore_tags wagtailimages_tags %}
+
+<div id="mapBlock-{{place.id}}" class="map-block-1 map-block block-container">
+  <div class="map-info-container">
+    {% with place.value.images|item:"0" as places_image %}
+      {% image places_image.image fill-200x200 as place_img %}
+      <img class="map-image" src ="{{place_img.url}}" alt="">
+    {% endwith %}
+    <div class="map-label">{{place.value.place}}</div>
+    <div class="map-distance-container">
+      <div class="map-distance">{{place.value.distance_from_start_location}}</div>
+      <div>km</div>
+      {% for location_amenity in place.value.amenities %}
+        {% if location_amenity.amenity_type|add:0 == AMENITIES|get_item:'HOSPITAL' %}
+        <div class="padding-top-bottom-30 inline-block tooltip">
+          <i class='fa fa-bed' style='font-size:24px'></i>
+          <span class="tooltiptext" >{{location_amenity.location}}</span>
+        </div>
+        {% endif %}
+        {% if location_amenity.amenity_type|add:0 == AMENITIES|get_item:'EATING_PLACE' %}
+        <div>
+          <div class="block-container tooltip">
+          <i class='fa fa-utensils' style='font-size:24px'></i>
+            <span class="tooltiptext" >{{location_amenity.location}}</span>
+          </div>
+        </div>
+        {% endif %}
+        {% if location_amenity.amenity_type|add:0 == AMENITIES|get_item:'PETROL_PUMP' %}
+        <div>
+          <div class="block-container tooltip">
+            <i class='fa fa-gas-pump' style='font-size:24px'></i>
+            <span class="tooltiptext" >{{location_amenity.location}}</span>
+          </div>
+        </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
