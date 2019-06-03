@@ -9,7 +9,7 @@
     var init = true;
 
     var populateRoute = function(){
-      fetch(route.dataAPI()+route.routeId()+'/').
+      fetch('/api/v2/pages/'+route.routeId()+'/').
       then(response => response.json()).
       then(data => {  outstationTaxiRoute = data;
       //console.log(data)
