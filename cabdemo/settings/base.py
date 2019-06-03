@@ -179,8 +179,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 #LOGIN_REDIRECT_URL="comments"
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY ='939419215497-b025e0lmn1odvusd7ud2t5lqe10v7bis.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'wGDdPItc88Gi5j5M6Zc09Jwu' #Paste Secret Key
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY ='19203711706-tusp72i2dnum3i4auevvl9chbpjq0k53.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'Nn_PS6Y_sJ6hT0IXGKfcsWxV' #Paste Secret Key
 SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.social_details',
     'social_core.pipeline.social_auth.social_uid',
